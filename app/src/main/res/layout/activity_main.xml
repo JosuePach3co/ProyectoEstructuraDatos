@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.example.estructuradatos.GraphView
+                    android:id="@+id/graph_view"
+                    android:layout_width="3000dp"
+                    android:layout_height="2000dp"
+                    android:background="#FFFFFF" />
+
+            </LinearLayout>
+        </ScrollView>
+    </HorizontalScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnEliminar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="16dp"
+        android:contentDescription="Eliminar aeropuerto"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        android:backgroundTint="@color/purple_500"
+        app:tint="@android:color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_add_vuelos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Agregar vuelo"
+        app:srcCompat="@drawable/ic_add_vuelo"
+        android:backgroundTint="@color/purple_500"
+        app:tint="@android:color/white" />
+
+</FrameLayout>
+
+
