@@ -1,5 +1,6 @@
 package com.example.estructuradatos;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -9,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteAirportListActivity extends AppCompatActivity {
+public class AirportListActivity extends AppCompatActivity {
     private FlightManager flightManager;
     private AirportAdapter adapter;
     private List<Airport> airportList;
@@ -46,5 +47,10 @@ public class DeleteAirportListActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+    public void onEditAirportClick(final Airport airport) {
+        Intent intent = new Intent(this, EditAirportActivity.class);
+        intent.putExtra("iata", airport.getIataCode());
+        startActivity(intent);
     }
 }

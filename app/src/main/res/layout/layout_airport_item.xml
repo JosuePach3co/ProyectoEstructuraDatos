@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="16dp"
     android:gravity="center_vertical">
@@ -15,12 +16,20 @@
         android:textStyle="bold"
         android:textColor="@android:color/black"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btnDeleteAirport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Eliminar"
+        app:srcCompat="@android:drawable/ic_menu_delete"
         android:backgroundTint="@android:color/holo_red_dark"
         android:textColor="@android:color/white"/>
+
+    <ImageButton
+        android:id="@+id/btnEditAirport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/ic_menu_edit"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>

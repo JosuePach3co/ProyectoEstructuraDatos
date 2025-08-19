@@ -1,5 +1,6 @@
 package com.example.estructuradatos;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -8,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteFlightListActivity extends AppCompatActivity {
+public class FlightListActivity extends AppCompatActivity {
     private FlightManager flightManager;
     private FlightAdapter adapter;
     private List<Flight> flightList;
@@ -50,5 +51,12 @@ public class DeleteFlightListActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    public void onEditFlightClick(final Flight flight) {
+        Intent intent = new Intent(this, EditFlightActivity.class);
+        intent.putExtra("origin", flight.getOrigin().getIataCode());
+        intent.putExtra("destination", flight.getDestination().getIataCode());
+        startActivity(intent);
     }
 }

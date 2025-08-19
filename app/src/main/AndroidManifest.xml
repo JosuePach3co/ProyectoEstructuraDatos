@@ -13,9 +13,11 @@
         android:theme="@style/Theme.EstructuraDatos" >
         <activity android:name=".AddAirportActivity" />
         <activity android:name=".DeleteActivity"/>
-        <activity android:name=".DeleteAirportListActivity"/>
-        <activity android:name=".DeleteFlightListActivity"/>
+        <activity android:name=".AirportListActivity"/>
+        <activity android:name=".FlightListActivity"/>
         <activity android:name=".AddFlightActivity" />
+        <activity android:name=".EditAirportActivity"/>
+        <activity android:name=".EditFlightActivity"/>
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

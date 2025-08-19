@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.util.List;
 
@@ -15,6 +15,7 @@ public class FlightAdapter extends ArrayAdapter<Flight> {
         super(context, 0, flights);
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_flight_item, parent, false);
@@ -22,15 +23,22 @@ public class FlightAdapter extends ArrayAdapter<Flight> {
 
         Flight flight = getItem(position);
         TextView tvInfo = convertView.findViewById(R.id.tvFlightInfo);
-        Button btnDelete = convertView.findViewById(R.id.btnDeleteFlight);
+        ImageButton btnDelete = convertView.findViewById(R.id.btnDeleteFlight);
+        ImageButton btnEdit = convertView.findViewById(R.id.btnEditFlight);
 
         if (flight != null) {
-            tvInfo.setText(flight.getOrigin().getIataCode() + " -> " + flight.getDestination().getIataCode() + " (" + flight.getDistance() + " km)");
+            tvInfo.setText(flight.getOrigin().getIataCode() + " -> " +
+                    flight.getDestination().getIataCode() + " (" + flight.getDistance() + " km)");
 
             btnDelete.setOnClickListener(v -> {
-                // Notificar a la actividad que se debe eliminar este vuelo
-                if (getContext() instanceof DeleteFlightListActivity) {
-                    ((DeleteFlightListActivity) getContext()).onDeleteFlightClick(flight);
+                if (getContext() instanceof FlightListActivity) {
+                    ((FlightListActivity) getContext()).onDeleteFlightClick(flight);
+                }
+            });
+
+            btnEdit.setOnClickListener(v -> {
+                if (getContext() instanceof FlightListActivity) {
+                    ((FlightListActivity) getContext()).onEditFlightClick(flight);
                 }
             });
         }

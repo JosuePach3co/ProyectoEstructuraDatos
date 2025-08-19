@@ -34,7 +34,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="16dp"
         android:contentDescription="Eliminar aeropuerto"
-        app:srcCompat="@android:drawable/ic_menu_delete"
+        app:srcCompat="@android:drawable/ic_menu_edit"
         android:backgroundTint="@color/purple_500"
         app:tint="@android:color/white" />
 
@@ -45,7 +45,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Agregar vuelo"
-        app:srcCompat="@drawable/ic_add_vuelo"
+        android:src="@drawable/ic_add_vuelo"
         android:backgroundTint="@color/purple_500"
         app:tint="@android:color/white" />
 

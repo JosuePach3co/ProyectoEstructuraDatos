@@ -21,9 +21,9 @@ public class DeleteActivity extends AppCompatActivity {
         btnAceptar.setOnClickListener(v -> {
             Intent intent = null;
             if (radioAirport.isChecked()) {
-                intent = new Intent(this, DeleteAirportListActivity.class);
+                intent = new Intent(this, AirportListActivity.class);
             } else if (radioFlight.isChecked()) {
-                intent = new Intent(this, DeleteFlightListActivity.class);
+                intent = new Intent(this, FlightListActivity.class);
             }
             if (intent != null) {
                 startActivity(intent);

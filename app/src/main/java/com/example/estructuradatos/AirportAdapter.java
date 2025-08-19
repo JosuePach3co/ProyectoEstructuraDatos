@@ -5,11 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
-
-import com.example.estructuradatos.Airport;
-
 import java.util.List;
 
 public class AirportAdapter extends ArrayAdapter<Airport> {
@@ -18,23 +15,29 @@ public class AirportAdapter extends ArrayAdapter<Airport> {
         super(context, 0, airports);
     }
 
-
-    public View getView(int position, View convertView,  ViewGroup parent) {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_airport_item, parent, false);
         }
 
         Airport airport = getItem(position);
         TextView tvInfo = convertView.findViewById(R.id.tvAirportInfo);
-        Button btnDelete = convertView.findViewById(R.id.btnDeleteAirport);
+        ImageButton btnDelete = convertView.findViewById(R.id.btnDeleteAirport);
+        ImageButton btnEdit = convertView.findViewById(R.id.btnEditAirport);
 
         if (airport != null) {
             tvInfo.setText(airport.getIataCode() + " - " + airport.getName());
 
             btnDelete.setOnClickListener(v -> {
-                // Notificar a la actividad que se debe eliminar este aeropuerto
-                if (getContext() instanceof DeleteAirportListActivity) {
-                    ((DeleteAirportListActivity) getContext()).onDeleteAirportClick(airport);
+                if (getContext() instanceof AirportListActivity) {
+                    ((AirportListActivity) getContext()).onDeleteAirportClick(airport);
+                }
+            });
+
+            btnEdit.setOnClickListener(v -> {
+                if (getContext() instanceof AirportListActivity) {
+                    ((AirportListActivity) getContext()).onEditAirportClick(airport);
                 }
             });
         }

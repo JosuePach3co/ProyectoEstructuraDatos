@@ -1,5 +1,7 @@
 package com.example.estructuradatos;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,5 +27,10 @@ public class Airline implements Serializable {
 
     public void addFlight(Flight flight) {
         this.flights.add(flight);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

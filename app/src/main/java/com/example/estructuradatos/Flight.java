@@ -24,14 +24,21 @@ public class Flight implements Serializable {
     public Airport getOrigin() {
         return origin;
     }
+
     public Airport getDestination() {
         return destination;
     }
+
     public double getDistance() {
         return distance;
     }
+
     public Airline getAirline() {
         return airline;
+    }
+
+    public void setAirline(Airline airline) {
+        this.airline = airline;
     }
 
     @Override

@@ -41,6 +41,14 @@ public class Airport implements Serializable {
         return y;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIataCode(String iata) {
+        this.iataCode = iata;
+    }
+
     public List<Flight> getFlightList() {
         return flightList;
     }

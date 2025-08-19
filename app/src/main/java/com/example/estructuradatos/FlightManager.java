@@ -62,4 +62,5 @@ public class FlightManager implements Serializable {
         flightGraph.addFlight("PKX", "NRT", 2100, airChina);
         flightGraph.addFlight("LHR", "CDG", 343, airFrancesa);
     }
+
 }
