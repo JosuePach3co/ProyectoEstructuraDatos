@@ -24,6 +24,7 @@ public class AddFlightActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_flight);
 
+
         spinnerOrigen = findViewById(R.id.spinnerOrigen);
         spinnerDestino = findViewById(R.id.spinnerDestino);
         spinnerAerolinea = findViewById(R.id.spinnerAerolinea);
@@ -76,13 +77,11 @@ public class AddFlightActivity extends AppCompatActivity {
                 }
             }
 
-            // Calcular distancia euclideana en GraphView
-            double dx = destino.getX() - origen.getX();
-            double dy = destino.getY() - origen.getY();
-            double distancia = Math.round(Math.sqrt(dx * dx + dy * dy) * 100.0)/100.0;
+            // calcular distancia desde método centralizado
+            double distancia = FlightManager.computeDistance(origen, destino);
 
             // Agregar vuelo al grafo
-            boolean agregado = flightManager.getFlightGraph().addFlight(origenIata, destinoIata, distancia, aerolinea);
+            boolean agregado = flightManager.addFlight(origenIata, destinoIata, distancia, aerolinea);
 
             if (agregado) {
                 Toast.makeText(this, "Vuelo agregado correctamente", Toast.LENGTH_SHORT).show();

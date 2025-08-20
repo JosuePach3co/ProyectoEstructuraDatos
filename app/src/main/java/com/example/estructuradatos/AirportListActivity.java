@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,16 +39,20 @@ public class AirportListActivity extends AppCompatActivity {
                 .setTitle("Confirmar eliminación")
                 .setMessage("¿Deseas eliminar el aeropuerto " + airport.getIataCode() + "?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    boolean removed = flightManager.getFlightGraph().removeAirport(airport);
+                    // PUNTO 12: usar FlightManager.removeAirport para limpieza completa (Airline + AVL)
+                    boolean removed = flightManager.removeAirport(airport.getIataCode());
                     if (removed && !isFinishing()) {
                         airportList.remove(airport);
                         adapter.notifyDataSetChanged();
                         Toast.makeText(this, "Aeropuerto eliminado", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "No se pudo eliminar el aeropuerto", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("No", null)
                 .show();
     }
+
     public void onEditAirportClick(final Airport airport) {
         Intent intent = new Intent(this, EditAirportActivity.class);
         intent.putExtra("iata", airport.getIataCode());

@@ -1,20 +1,14 @@
 package com.example.estructuradatos;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
-import java.io.Serializable;
 import java.util.*;
+
 
 public class GraphAL implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Airport> airports; // IATA -> Airport
-    private boolean isDirected;
+    private final Map<String, Airport> airports; // IATA - Airport
+    private final boolean isDirected;
 
     public GraphAL(boolean isDirected) {
         this.airports = new HashMap<>();
@@ -22,7 +16,7 @@ public class GraphAL implements Serializable {
     }
 
     public boolean addAirport(Airport airport) {
-        if (airport == null || this.airports.containsKey(airport.getIataCode())) {
+        if (airport == null || airport.getIataCode() == null || this.airports.containsKey(airport.getIataCode())) {
             return false;
         }
         this.airports.put(airport.getIataCode(), airport);
@@ -36,12 +30,13 @@ public class GraphAL implements Serializable {
         if (origin == null || destination == null) {
             return false;
         }
-        
-        if (origin == destination) { //evita self-loop
-        return false;
+        if (origin == destination) { // evita self-loop por referencia
+            return false;
         }
-        
-        if (hasFlight(iataOrigin, iataDestination)) { //evita duplicados
+        if (Objects.equals(iataOrigin, iataDestination)) { // evita self-loop por IATA
+            return false;
+        }
+        if (hasFlight(iataOrigin, iataDestination)) { // evita duplicados
             return false;
         }
 
@@ -63,34 +58,64 @@ public class GraphAL implements Serializable {
         return this.airports.values();
     }
 
-    // Eliminar aeropuerto y limpiar vuelos entrantes
+
     public boolean removeAirport(Airport airport) {
-        if (airport == null || !airports.containsKey(airport.getIataCode())) return false;
+        if (airport == null || airport.getIataCode() == null || !airports.containsKey(airport.getIataCode())) return false;
 
-        airports.remove(airport.getIataCode());
+        final String toRemoveIata = airport.getIataCode();
 
+        // Limpiar vuelos SALIENTES de airport en listas de aerolíneas
+        if (airport.getFlightList() != null) {
+            for (Flight f : new ArrayList<>(airport.getFlightList())) {
+                if (f != null) {
+                    Airline al = f.getAirline();
+                    if (al != null && al.getFlights() != null) {
+                        al.getFlights().remove(f);
+                    }
+                }
+            }
+            // Opcional: limpiar la lista local (no estrictamente necesario al remover el vértice)
+            airport.getFlightList().clear();
+        }
+
+        // Remover el vértice del mapa
+        airports.remove(toRemoveIata);
+
+        // Limpiar vuelos ENTRANTES hacia airport en los demás aeropuertos,
+        //    y quitar también de Airline.getFlights()
         for (Airport a : airports.values()) {
-            a.getFlightList().removeIf(f -> f.getDestination().equals(airport));
+            if (a == null || a.getFlightList() == null) continue;
+            a.getFlightList().removeIf(f -> {
+                if (f == null || f.getDestination() == null) return false;
+                boolean match = toRemoveIata.equals(f.getDestination().getIataCode());
+                if (match) {
+                    Airline al = f.getAirline();
+                    if (al != null && al.getFlights() != null) {
+                        al.getFlights().remove(f);
+                    }
+                }
+                return match;
+            });
         }
         return true;
     }
-    
+
+
     public boolean hasFlight(String iataOrigin, String iataDestination) {
         Airport origin = this.airports.get(iataOrigin);
-        Airport destination = this.airports.get(iataDestination);
-
-        if (origin == null || destination == null) {
-            return false;
-        }
+        if (origin == null) return false;
 
         for (Flight f : origin.getFlightList()) {
-            if (f.getDestination() == destination) { //misma instancia del mapa
+            Airport dest = (f != null) ? f.getDestination() : null;
+            String destIata = (dest != null) ? dest.getIataCode() : null;
+            if (Objects.equals(destIata, iataDestination)) {
                 return true;
             }
         }
         return false;
     }
-    
+
+
     public boolean removeFlight(String iataOrigin, String iataDestination) {
         Airport origin = this.airports.get(iataOrigin);
         Airport destination = this.airports.get(iataDestination);
@@ -100,34 +125,35 @@ public class GraphAL implements Serializable {
         }
 
         boolean removedForward = origin.getFlightList().removeIf(f -> {
-            if (f.getDestination() == destination) {
-                // limpiar referencia en airline (si la hay)
+            if (f == null || f.getDestination() == null) return false;
+            boolean match = Objects.equals(f.getDestination().getIataCode(), iataDestination);
+            if (match) {
                 Airline al = f.getAirline();
-                if (al != null) {
+                if (al != null && al.getFlights() != null) {
                     al.getFlights().remove(f);
                 }
-                return true;
             }
-            return false;
+            return match;
         });
 
         if (!this.isDirected) {
-            // Remueve vuelta si el grafo fuera no dirigido
             boolean removedBackward = destination.getFlightList().removeIf(f -> {
-                if (f.getDestination() == origin) {
+                if (f == null || f.getDestination() == null) return false;
+                boolean match = Objects.equals(f.getDestination().getIataCode(), iataOrigin);
+                if (match) {
                     Airline al = f.getAirline();
-                    if (al != null) {
+                    if (al != null && al.getFlights() != null) {
                         al.getFlights().remove(f);
                     }
-                    return true;
                 }
-                return false;
+                return match;
             });
             return removedForward || removedBackward;
         }
         return removedForward;
     }
-    
+
+
     public boolean changeIata(String oldIata, String newIata) {
         if (oldIata == null || newIata == null) {
             return false;
@@ -137,17 +163,70 @@ public class GraphAL implements Serializable {
         }
 
         Airport airport = this.airports.get(oldIata);
-        if (airport == null) {
-            return false; // no existe el viejo
-        }
-        if (this.airports.containsKey(newIata)) {
+        if (airport == null) return false;        // no existe el viejo
+        if (this.airports.containsKey(newIata)) { // ya existe el nuevo
             return false;
         }
 
         this.airports.remove(oldIata);
         airport.setIataCode(newIata);   // actualiza el campo visible
         this.airports.put(newIata, airport);
-        
+
         return true;
+    }
+
+    // ============================================================
+    //  Dijkstra
+    // ============================================================
+
+    public ShortestPathResult dijkstra(String fromIata, String toIata) {
+        Airport source = airports.get(fromIata);
+        Airport target = airports.get(toIata);
+
+        if (source == null || target == null) {
+            return new ShortestPathResult(false, Double.POSITIVE_INFINITY, Collections.emptyList());
+        }
+
+        Map<Airport, Double> dist = new HashMap<>();
+        Map<Airport, Airport> prev = new HashMap<>();
+
+        for (Airport a : airports.values()) {
+            dist.put(a, Double.POSITIVE_INFINITY);
+        }
+        dist.put(source, 0.0);
+
+        PriorityQueue<Airport> pq = new PriorityQueue<>(Comparator.comparingDouble(dist::get));
+        pq.add(source);
+
+        while (!pq.isEmpty()) {
+            Airport u = pq.poll();
+            if (u.equals(target)) break;
+
+            for (Flight f : u.getFlightList()) {
+                if (f == null || f.getDestination() == null) continue;
+                Airport v = f.getDestination();
+                double alt = dist.get(u) + f.getDistance();
+                if (alt < dist.get(v)) {
+                    dist.put(v, alt);
+                    prev.put(v, u);
+                    pq.remove(v);
+                    pq.add(v);
+                }
+            }
+        }
+
+        double total = dist.get(target);
+        if (total == Double.POSITIVE_INFINITY) {
+            return new ShortestPathResult(false, total, Collections.emptyList());
+        }
+
+        LinkedList<Airport> path = new LinkedList<>();
+        Airport step = target;
+        while (step != null) {
+            path.addFirst(step);
+            step = prev.get(step);
+        }
+
+        return new ShortestPathResult(true, total, path);
     }
 }

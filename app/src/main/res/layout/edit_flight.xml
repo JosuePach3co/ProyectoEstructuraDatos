@@ -3,7 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+
+    android:padding="100dp"
+    android:fitsSystemWindows="true"
+    android:paddingTop="?attr/actionBarSize">
 
     <TextView
         android:layout_width="wrap_content"
@@ -52,5 +55,4 @@
         android:backgroundTint="@color/purple_500"
         android:textColor="@android:color/white"
         android:layout_marginTop="24dp" />
-
 </LinearLayout>

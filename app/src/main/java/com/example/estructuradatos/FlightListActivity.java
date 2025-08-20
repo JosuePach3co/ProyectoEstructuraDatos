@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +25,8 @@ public class FlightListActivity extends AppCompatActivity {
 
         ListView listView = findViewById(R.id.listFlights);
 
-        flightList = new ArrayList<>();
-        for (Airport a : flightManager.getFlightGraph().getVertices()) {
-            flightList.addAll(new ArrayList<>(a.getFlightList())); // Añadir los vuelos a la nueva lista
-        }
+        // tomar la lista ordenada desde el AVL
+        flightList = new ArrayList<>(flightManager.getFlightsSorted());
 
         adapter = new FlightAdapter(this, flightList);
         listView.setAdapter(adapter);
@@ -42,10 +42,13 @@ public class FlightListActivity extends AppCompatActivity {
                         flight.getOrigin().getIataCode() + " a " +
                         flight.getDestination().getIataCode() + "?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    boolean removed = flightManager.getFlightGraph().removeFlight(flight.getOrigin().getIataCode(), flight.getDestination().getIataCode());
+                    // usar los métodos centralizados del FlightManager
+                    boolean removed = flightManager.removeFlight(
+                            flight.getOrigin().getIataCode(),
+                            flight.getDestination().getIataCode()
+                    );
                     if (removed && !isFinishing()) {
-                        flightList.remove(flight);
-                        adapter.notifyDataSetChanged();
+                        reloadFlights();
                         Toast.makeText(this, "Vuelo eliminado", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "No se pudo eliminar el vuelo", Toast.LENGTH_SHORT).show();
@@ -61,7 +64,7 @@ public class FlightListActivity extends AppCompatActivity {
         intent.putExtra("destination", flight.getDestination().getIataCode());
         startActivity(intent);
     }
-    
+
     // Refrescar la lista al volver desde editar/agregar
     @Override
     protected void onResume() {
@@ -71,9 +74,8 @@ public class FlightListActivity extends AppCompatActivity {
 
     private void reloadFlights() {
         flightList.clear();
-        for (Airport a : flightManager.getFlightGraph().getVertices()) {
-            flightList.addAll(new ArrayList<>(a.getFlightList()));
-        }
+        // volver a tomar el orden desde el AVL
+        flightList.addAll(flightManager.getFlightsSorted());
         adapter.notifyDataSetChanged();
     }
 }

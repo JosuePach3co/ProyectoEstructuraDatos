@@ -20,6 +20,7 @@ public class EditFlightActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_flight);
 
+
         String originCode = getIntent().getStringExtra("origin");
         String destinationCode = getIntent().getStringExtra("destination");
 
@@ -81,21 +82,71 @@ public class EditFlightActivity extends AppCompatActivity {
                 return;
             }
 
-            // Actualizar vuelo en el grafo
-            if (flight != null) {
-                // Si cambiaron origen o destino, eliminar el vuelo anterior y crear uno nuevo
-                if (!flight.getOrigin().equals(selectedOrigin) || !flight.getDestination().equals(selectedDestination)) {
-                    flight.getOrigin().getFlightList().remove(flight);
-                    flight = new Flight(selectedOrigin, selectedDestination, flight.getDistance(), selectedAirline);
-                    selectedOrigin.addFlightListAirport(flight);
-                } else {
-                    // Solo cambiar aerolínea
-                    flight.setAirline(selectedAirline);
-                }
+            if (flight == null) {
+                Toast.makeText(this, "No se encontró el vuelo a editar", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            Toast.makeText(this, "Vuelo actualizado", Toast.LENGTH_SHORT).show();
-            finish();
+            boolean routeChanged =
+                    !flight.getOrigin().equals(selectedOrigin) ||
+                            !flight.getDestination().equals(selectedDestination);
+
+            boolean airlineChanged =
+                    (flight.getAirline() == null && selectedAirline != null) ||
+                            (flight.getAirline() != null && !flight.getAirline().equals(selectedAirline));
+
+            if (routeChanged) {
+                String oldOrigin = flight.getOrigin().getIataCode();
+                String oldDest = flight.getDestination().getIataCode();
+
+                // Eliminar el vuelo anterior (limpia Airline y AVL)
+                boolean removed = flightManager.removeFlight(oldOrigin, oldDest);
+                if (!removed) {
+                    Toast.makeText(this, "No se pudo eliminar el vuelo anterior", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // PUNTO 14: calcular distancia con método centralizado
+                double distancia = FlightManager.computeDistance(selectedOrigin, selectedDestination);
+
+                boolean added = flightManager.addFlight(
+                        selectedOrigin.getIataCode(),
+                        selectedDestination.getIataCode(),
+                        distancia,
+                        selectedAirline
+                );
+
+                if (!added) {
+                    Toast.makeText(this, "No se pudo crear el nuevo vuelo (¿duplicado?)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(this, "Vuelo actualizado", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            if (airlineChanged) {
+                Airline oldAirline = flight.getAirline();
+
+                if (oldAirline != null) {
+                    oldAirline.getFlights().remove(flight);
+                }
+                if (selectedAirline != null && !selectedAirline.getFlights().contains(flight)) {
+                    selectedAirline.addFlight(flight);
+                }
+
+                flight.setAirline(selectedAirline);
+
+                // El comparador del AVL desempata por aerolínea: reconstruimos
+                flightManager.rebuildFlightAvl();
+
+                Toast.makeText(this, "Aerolínea actualizada", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            Toast.makeText(this, "No hay cambios que guardar", Toast.LENGTH_SHORT).show();
         });
     }
 }
