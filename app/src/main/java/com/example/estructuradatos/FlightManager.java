@@ -16,7 +16,7 @@ import java.util.List;
 public class FlightManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final String FILE_NAME = "flights.bin";
+    private static final String FILE_NAME = "arch_flights.bin";
 
     private static FlightManager instance;
 
@@ -29,7 +29,6 @@ public class FlightManager implements Serializable {
     private FlightManager() {
         this.flightGraph = new GraphAL(true);
         this.airlines = new ArrayList<>();
-        loadInitialData();
         rebuildAirlineIndexes();
         initAvl();
     }
@@ -67,10 +66,10 @@ public class FlightManager implements Serializable {
         airlines.add(airFrancesa);
 
         Airport pkx = new Airport("PKX", "Daxing", 100, 600);
-        Airport jfk = new Airport("JFK", "Nueva York", 600, 800);
-        Airport lhr = new Airport("LHR", "Londres", 1200, 900);
+        Airport jfk = new Airport("JFK", "Nueva York", 200, 100);
+        Airport lhr = new Airport("LHR", "Londres", 900, 900);
         Airport cdg = new Airport("CDG", "París", 1700, 1100);
-        Airport nrt = new Airport("NRT", "Tokio", 2000, 1300);
+        Airport nrt = new Airport("NRT", "Tokio", 500, 1300);
 
         flightGraph.addAirport(pkx);
         flightGraph.addAirport(jfk);
@@ -118,6 +117,7 @@ public class FlightManager implements Serializable {
             }
             return false;
         } catch (FileNotFoundException e) {
+            instance.loadInitialData();
             return false; // primera ejecución
         } catch (Exception e) {
             e.printStackTrace();

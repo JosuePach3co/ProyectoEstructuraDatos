@@ -140,7 +140,6 @@ public class EditFlightActivity extends AppCompatActivity {
 
                 // El comparador del AVL desempata por aerolínea: reconstruimos
                 flightManager.rebuildFlightAvl();
-
                 Toast.makeText(this, "Aerolínea actualizada", Toast.LENGTH_SHORT).show();
                 finish();
                 return;

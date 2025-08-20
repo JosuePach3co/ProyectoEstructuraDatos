@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,7 +22,7 @@ public class GraphView extends View {
     private static final int MAX_CLICK_DURATION = 200;
     private static final int MAX_CLICK_DISTANCE = 20;
     private Bitmap airportPrincipalBitmap, airportSecundarioBitmap;
-    public static final int AIRPORT_SIZE = 70;
+    public static final int AIRPORT_SIZE = 90;
 
     // Preview de intento de aeropuerto
     private Float previewX = null, previewY = null;
@@ -39,7 +40,8 @@ public class GraphView extends View {
 
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(30f);
+        textPaint.setTextSize(40f);
+        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
         airportPrincipalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.aeropuerto_principal);
         if (airportPrincipalBitmap != null) {

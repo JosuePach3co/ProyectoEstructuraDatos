@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (flightManager != null) {
+            flightManager.saveToDisk(this);
+        }
         graphView.invalidate();
     }
 
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fabAggVuelos = findViewById(R.id.btn_add_vuelos);
         fabAggVuelos.setOnClickListener(v -> startActivity(new Intent(this, AddFlightActivity.class)));
     }
-
+    /**
     // Guardar en binario cuando la Activity pasa a pausa
     @Override
     protected void onPause() {
@@ -113,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
         if (flightManager != null) {
             flightManager.saveToDisk(this);
         }
-    }
-
+    }**/
     private void agregarAeropuerto(String iata, String nombre, float x, float y) {
         boolean valido = graphView.isPositionValid(x, y, flightManager.getFlightGraph().getVertices(), DISTANCIA_MINIMA);
         if (!valido) {
