@@ -42,11 +42,13 @@ public class FlightListActivity extends AppCompatActivity {
                         flight.getOrigin().getIataCode() + " a " +
                         flight.getDestination().getIataCode() + "?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    boolean removed = flight.getOrigin().getFlightList().remove(flight);
+                    boolean removed = flightManager.getFlightGraph().removeFlight(flight.getOrigin().getIataCode(), flight.getDestination().getIataCode());
                     if (removed && !isFinishing()) {
                         flightList.remove(flight);
                         adapter.notifyDataSetChanged();
                         Toast.makeText(this, "Vuelo eliminado", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "No se pudo eliminar el vuelo", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("No", null)
@@ -58,5 +60,20 @@ public class FlightListActivity extends AppCompatActivity {
         intent.putExtra("origin", flight.getOrigin().getIataCode());
         intent.putExtra("destination", flight.getDestination().getIataCode());
         startActivity(intent);
+    }
+    
+    // Refrescar la lista al volver desde editar/agregar
+    @Override
+    protected void onResume() {
+        super.onResume();
+        reloadFlights();
+    }
+
+    private void reloadFlights() {
+        flightList.clear();
+        for (Airport a : flightManager.getFlightGraph().getVertices()) {
+            flightList.addAll(new ArrayList<>(a.getFlightList()));
+        }
+        adapter.notifyDataSetChanged();
     }
 }

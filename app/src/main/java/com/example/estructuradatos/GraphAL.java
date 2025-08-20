@@ -36,6 +36,14 @@ public class GraphAL implements Serializable {
         if (origin == null || destination == null) {
             return false;
         }
+        
+        if (origin == destination) { //evita self-loop
+        return false;
+        }
+        
+        if (hasFlight(iataOrigin, iataDestination)) { //evita duplicados
+            return false;
+        }
 
         Flight newFlight = new Flight(origin, destination, distance, airline);
         origin.addFlightListAirport(newFlight);
@@ -65,5 +73,58 @@ public class GraphAL implements Serializable {
             a.getFlightList().removeIf(f -> f.getDestination().equals(airport));
         }
         return true;
+    }
+    
+    public boolean hasFlight(String iataOrigin, String iataDestination) {
+        Airport origin = this.airports.get(iataOrigin);
+        Airport destination = this.airports.get(iataDestination);
+
+        if (origin == null || destination == null) {
+            return false;
+        }
+
+        for (Flight f : origin.getFlightList()) {
+            if (f.getDestination() == destination) { //misma instancia del mapa
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean removeFlight(String iataOrigin, String iataDestination) {
+        Airport origin = this.airports.get(iataOrigin);
+        Airport destination = this.airports.get(iataDestination);
+
+        if (origin == null || destination == null) {
+            return false;
+        }
+
+        boolean removedForward = origin.getFlightList().removeIf(f -> {
+            if (f.getDestination() == destination) {
+                // limpiar referencia en airline (si la hay)
+                Airline al = f.getAirline();
+                if (al != null) {
+                    al.getFlights().remove(f);
+                }
+                return true;
+            }
+            return false;
+        });
+
+        if (!this.isDirected) {
+            // Remueve vuelta si el grafo fuera no dirigido
+            boolean removedBackward = destination.getFlightList().removeIf(f -> {
+                if (f.getDestination() == origin) {
+                    Airline al = f.getAirline();
+                    if (al != null) {
+                        al.getFlights().remove(f);
+                    }
+                    return true;
+                }
+                return false;
+            });
+            return removedForward || removedBackward;
+        }
+        return removedForward;
     }
 }
