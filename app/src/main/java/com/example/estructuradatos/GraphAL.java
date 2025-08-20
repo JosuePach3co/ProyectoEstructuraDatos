@@ -127,4 +127,27 @@ public class GraphAL implements Serializable {
         }
         return removedForward;
     }
+    
+    public boolean changeIata(String oldIata, String newIata) {
+        if (oldIata == null || newIata == null) {
+            return false;
+        }
+        if (oldIata.equals(newIata)) {
+            return true;
+        }
+
+        Airport airport = this.airports.get(oldIata);
+        if (airport == null) {
+            return false; // no existe el viejo
+        }
+        if (this.airports.containsKey(newIata)) {
+            return false;
+        }
+
+        this.airports.remove(oldIata);
+        airport.setIataCode(newIata);   // actualiza el campo visible
+        this.airports.put(newIata, airport);
+        
+        return true;
+    }
 }

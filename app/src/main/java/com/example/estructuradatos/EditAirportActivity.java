@@ -49,11 +49,13 @@ public class EditAirportActivity extends AppCompatActivity {
                 // Actualizar valores
                 airport.setName(newName);
 
-                // Si cambió el IATA, actualizar el grafo
+                // Si cambió el IATA, re-clavea en el mapa sin tocar los vuelos
                 if (!originalIata.equals(newIata)) {
-                    flightManager.getFlightGraph().removeAirport(airport);
-                    airport.setIataCode(newIata); // Asegúrate de tener este setter en Airport
-                    flightManager.getFlightGraph().addAirport(airport);
+                    boolean ok = flightManager.getFlightGraph().changeIata(originalIata, newIata);
+                    if (!ok) {
+                        Toast.makeText(this, "Ya existe un aeropuerto con ese IATA o no se pudo actualizar", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
                 Toast.makeText(this, "Aeropuerto actualizado", Toast.LENGTH_SHORT).show();
