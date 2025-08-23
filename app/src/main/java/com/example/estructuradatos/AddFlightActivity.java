@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -16,7 +17,7 @@ public class AddFlightActivity extends AppCompatActivity {
 
     private Spinner spinnerOrigen, spinnerDestino, spinnerAerolinea;
     private Button btnGuardar, btnCancelar;
-
+    private EditText etDuration, etCost;
     private FlightManager flightManager;
 
     @Override
@@ -28,8 +29,8 @@ public class AddFlightActivity extends AppCompatActivity {
         spinnerOrigen = findViewById(R.id.spinnerOrigen);
         spinnerDestino = findViewById(R.id.spinnerDestino);
         spinnerAerolinea = findViewById(R.id.spinnerAerolinea);
-        EditText etDuration = findViewById(R.id.etDuration);
-        EditText etCost = findViewById(R.id.etCost);
+        etDuration = findViewById(R.id.etDuration);
+        etCost = findViewById(R.id.etCost);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
 
@@ -75,11 +76,10 @@ public class AddFlightActivity extends AppCompatActivity {
             for (Airline al : flightManager.getAirlines()) {
                 if (al.getName().equals(aerolineaName)) {
                     aerolinea = al;
-                    break;
                 }
             }
 
-            // calcular distancia desde método centralizado
+            // calcular distancia desde metodo centralizado
             double distancia = FlightManager.computeDistance(origen, destino);
             
             double durMin;

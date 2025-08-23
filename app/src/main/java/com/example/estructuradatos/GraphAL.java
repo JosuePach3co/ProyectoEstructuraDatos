@@ -37,10 +37,10 @@ public class GraphAL implements Serializable {
         }
         if (Objects.equals(iataOrigin, iataDestination)) { // evita self-loop por IATA
             return false;
-        }
+        }/**
         if (hasFlight(iataOrigin, iataDestination)) { // evita duplicados
             return false;
-        }
+        }**/
 
         Flight newFlight = new Flight(origin, destination, distance, durationMin, cost, airline);
         origin.addFlightListAirport(newFlight);
@@ -109,7 +109,7 @@ public class GraphAL implements Serializable {
         return true;
     }
 
-
+    /**
     public boolean hasFlight(String iataOrigin, String iataDestination) {
         Airport origin = this.airports.get(iataOrigin);
         if (origin == null) return false;
@@ -122,7 +122,7 @@ public class GraphAL implements Serializable {
             }
         }
         return false;
-    }
+    }**/
 
 
     public boolean removeFlight(String iataOrigin, String iataDestination) {
