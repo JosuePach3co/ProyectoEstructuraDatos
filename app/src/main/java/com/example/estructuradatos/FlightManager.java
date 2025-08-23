@@ -86,7 +86,8 @@ public class FlightManager implements Serializable {
     }
 
 
-    public synchronized boolean saveToDisk(Context ctx) {
+    // Guarda el grafo y aerolíneas en binario
+    public boolean saveToDisk(Context ctx) {
         if (ctx == null) return false;
         try (FileOutputStream fos = ctx.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -100,25 +101,32 @@ public class FlightManager implements Serializable {
         }
     }
 
-    public static synchronized boolean loadFromDisk(Context ctx) {
-        if (ctx == null) return false;
+
+    // Carga desde binario (si no existe, inicializa datos de ejemplo y reconstruye índices/AVL)
+    public static boolean loadFromDisk(Context ctx) {
         if (instance == null) instance = new FlightManager();
+        if (ctx == null) return false;
 
         try (FileInputStream fis = ctx.openFileInput(FILE_NAME);
              ObjectInputStream ois = new ObjectInputStream(fis)) {
+
             Object obj = ois.readObject();
             if (obj instanceof Store) {
                 Store store = (Store) obj;
                 instance.flightGraph = store.graph;
                 instance.airlines = store.airlines;
                 instance.rebuildAirlineIndexes();
-                instance.initAvl();
+                instance.initAvl(); // reconstituir AVL tras deserializar
                 return true;
             }
             return false;
+
         } catch (FileNotFoundException e) {
+            // Primera ejecución: llenar datos iniciales y reconstruir índices
             instance.loadInitialData();
-            return false; // primera ejecución
+            instance.rebuildAirlineIndexes();
+            instance.initAvl();
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -133,7 +141,7 @@ public class FlightManager implements Serializable {
     }
 
 
-    public synchronized boolean addFlight(String originIata, String destinationIata, double distance, Airline airline) {
+    public boolean addFlight(String originIata, String destinationIata, double distance, Airline airline) {
         if (originIata == null || destinationIata == null) return false;
 
         boolean added = flightGraph.addFlight(originIata, destinationIata, distance, airline);
@@ -151,7 +159,7 @@ public class FlightManager implements Serializable {
         return true;
     }
 
-    public synchronized boolean removeFlight(String originIata, String destinationIata) {
+    public boolean removeFlight(String originIata, String destinationIata) {
         Flight toRemove = findFlight(originIata, destinationIata);
 
         if (toRemove != null) {
@@ -237,7 +245,7 @@ public class FlightManager implements Serializable {
     }
 
 
-    public synchronized boolean removeAirport(String iata) {
+    public boolean removeAirport(String iata) {
         if (iata == null) return false;
         Airport airport = flightGraph.findAirport(iata);
         if (airport == null) return false;
