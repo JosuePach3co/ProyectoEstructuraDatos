@@ -6,6 +6,8 @@ import java.util.*;
 
 public class GraphAL implements Serializable {
     private static final long serialVersionUID = 1L;
+    
+    public enum WeightMetric { DISTANCE, TIME, COST }
 
     private final Map<String, Airport> airports; // IATA - Airport
     private final boolean isDirected;
@@ -23,7 +25,7 @@ public class GraphAL implements Serializable {
         return true;
     }
 
-    public boolean addFlight(String iataOrigin, String iataDestination, double distance, Airline airline) {
+    public boolean addFlight(String iataOrigin, String iataDestination, double distance, double durationMin, double cost, Airline airline) {
         Airport origin = this.airports.get(iataOrigin);
         Airport destination = this.airports.get(iataDestination);
 
@@ -40,14 +42,21 @@ public class GraphAL implements Serializable {
             return false;
         }
 
-        Flight newFlight = new Flight(origin, destination, distance, airline);
+        Flight newFlight = new Flight(origin, destination, distance, durationMin, cost, airline);
         origin.addFlightListAirport(newFlight);
 
         if (!this.isDirected) {
-            Flight reverseFlight = new Flight(destination, origin, distance, airline);
+            Flight reverseFlight = new Flight(destination, origin, distance, durationMin, cost, airline);
             destination.addFlightListAirport(reverseFlight);
         }
         return true;
+    }
+    
+    // Compatibilidad con llamadas antiguas: calcula valores por defecto
+    public boolean addFlight(String iataOrigin, String iataDestination, double distance, Airline airline) {
+        double defDur = FlightManager.computeEstimatedDurationMin(distance);
+        double defCost = FlightManager.computeEstimatedCost(distance);
+        return addFlight(iataOrigin, iataDestination, distance, defDur, defCost, airline);
     }
 
     public Airport findAirport(String iataCode) {
@@ -179,12 +188,12 @@ public class GraphAL implements Serializable {
     //  Dijkstra
     // ============================================================
 
-    public ShortestPathResult dijkstra(String fromIata, String toIata) {
+    public ShortestPathResult dijkstra(String fromIata, String toIata, WeightMetric metric) {
         Airport source = airports.get(fromIata);
         Airport target = airports.get(toIata);
 
         if (source == null || target == null) {
-            return new ShortestPathResult(false, Double.POSITIVE_INFINITY, Collections.emptyList());
+            return new ShortestPathResult(false, Double.POSITIVE_INFINITY, Collections.emptyList(), metric);
         }
 
         Map<Airport, Double> dist = new HashMap<>();
@@ -205,7 +214,16 @@ public class GraphAL implements Serializable {
             for (Flight f : u.getFlightList()) {
                 if (f == null || f.getDestination() == null) continue;
                 Airport v = f.getDestination();
-                double alt = dist.get(u) + f.getDistance();
+                double w;
+                switch (metric) {
+                    case TIME: w = f.getDurationMin() > 0 ? f.getDurationMin()
+                            : FlightManager.computeEstimatedDurationMin(f.getDistance()); break;
+                    case COST: w = f.getCost() > 0 ? f.getCost()
+                            : FlightManager.computeEstimatedCost(f.getDistance()); break;
+                    case DISTANCE:
+                    default:   w = f.getDistance();
+                }
+                double alt = dist.get(u) + w;
                 if (alt < dist.get(v)) {
                     dist.put(v, alt);
                     prev.put(v, u);
@@ -217,7 +235,7 @@ public class GraphAL implements Serializable {
 
         double total = dist.get(target);
         if (total == Double.POSITIVE_INFINITY) {
-            return new ShortestPathResult(false, total, Collections.emptyList());
+            return new ShortestPathResult(false, total, Collections.emptyList(), metric);
         }
 
         LinkedList<Airport> path = new LinkedList<>();
@@ -227,6 +245,51 @@ public class GraphAL implements Serializable {
             step = prev.get(step);
         }
 
-        return new ShortestPathResult(true, total, path);
+        return new ShortestPathResult(true, total, path, metric);
+    }
+    
+    public ShortestPathResult dijkstra(String fromIata, String toIata) {
+        return dijkstra(fromIata, toIata, WeightMetric.DISTANCE);
+    }
+    
+    // ====================== ESTADÍSTICAS ============================
+    public int outDegree(String iata) {
+        Airport a = airports.get(iata);
+        return (a == null || a.getFlightList() == null) ? 0 : a.getFlightList().size();
+    }
+
+    public int inDegree(String iata) {
+        Airport target = airports.get(iata);
+        if (target == null) return 0;
+        int count = 0;
+        for (Airport a : airports.values()) {
+            if (a == null || a.getFlightList() == null) continue;
+            for (Flight f : a.getFlightList()) {
+                if (f != null && f.getDestination() != null && target.equals(f.getDestination())) count++;
+            }
+        }
+        return count;
+    }
+
+    // conexiones = (includeIn ? entrantes : 0) + (includeOut ? salientes : 0)
+    public Map<Airport,Integer> connections(boolean includeIn, boolean includeOut) {
+        Map<Airport,Integer> map = new HashMap<>();
+        for (Airport a : airports.values()) {
+            int val = 0;
+            if (includeOut) val += outDegree(a.getIataCode());
+            if (includeIn)  val += inDegree(a.getIataCode());
+            map.put(a, val);
+        }
+        return map;
+    }
+
+    public Airport mostConnected(boolean includeIn, boolean includeOut) {
+        Map<Airport,Integer> map = connections(includeIn, includeOut);
+        return map.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
+    }
+
+    public Airport leastConnected(boolean includeIn, boolean includeOut) {
+        Map<Airport,Integer> map = connections(includeIn, includeOut);
+        return map.entrySet().stream().min(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
     }
 }

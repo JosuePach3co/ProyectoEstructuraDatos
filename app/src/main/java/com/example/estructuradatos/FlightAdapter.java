@@ -27,8 +27,12 @@ public class FlightAdapter extends ArrayAdapter<Flight> {
         ImageButton btnEdit = convertView.findViewById(R.id.btnEditFlight);
 
         if (flight != null) {
+            String extra = "";
+            if (flight.getDurationMin() > 0) extra += " • " + flight.getDurationMin() + " min";
+            if (flight.getCost() > 0) extra += " • $" + flight.getCost();
+            
             tvInfo.setText(flight.getOrigin().getIataCode() + " -> " +
-                    flight.getDestination().getIataCode() + " (" + flight.getDistance() + " km)");
+                    flight.getDestination().getIataCode() + " (" + flight.getDistance() + " km" + extra + ")");
 
             btnDelete.setOnClickListener(v -> {
                 if (getContext() instanceof FlightListActivity) {

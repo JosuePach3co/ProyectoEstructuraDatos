@@ -28,6 +28,8 @@ public class AddFlightActivity extends AppCompatActivity {
         spinnerOrigen = findViewById(R.id.spinnerOrigen);
         spinnerDestino = findViewById(R.id.spinnerDestino);
         spinnerAerolinea = findViewById(R.id.spinnerAerolinea);
+        EditText etDuration = findViewById(R.id.etDuration);
+        EditText etCost = findViewById(R.id.etCost);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
 
@@ -79,9 +81,25 @@ public class AddFlightActivity extends AppCompatActivity {
 
             // calcular distancia desde método centralizado
             double distancia = FlightManager.computeDistance(origen, destino);
+            
+            double durMin;
+            double costVal;
+            
+            String sDur = etDuration.getText().toString().trim();
+            String sCost = etCost.getText().toString().trim();
+            if (sDur.isEmpty()) {
+                durMin = FlightManager.computeEstimatedDurationMin(distancia);
+            } else {
+                durMin = Double.parseDouble(sDur);
+            }
+            if (sCost.isEmpty()) {
+                costVal = FlightManager.computeEstimatedCost(distancia);
+            } else {
+                costVal = Double.parseDouble(sCost);
+            }
 
             // Agregar vuelo al grafo
-            boolean agregado = flightManager.addFlight(origenIata, destinoIata, distancia, aerolinea);
+            boolean agregado = flightManager.addFlight(origenIata, destinoIata, distancia, durMin, costVal, aerolinea);
 
             if (agregado) {
                 Toast.makeText(this, "Vuelo agregado correctamente", Toast.LENGTH_SHORT).show();

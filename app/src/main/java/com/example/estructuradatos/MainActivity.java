@@ -167,17 +167,25 @@ public class MainActivity extends AppCompatActivity {
 
         Spinner spOrigin = new Spinner(this);
         Spinner spDest = new Spinner(this);
+        Spinner spMetric = new Spinner(this);
 
         ArrayAdapter<Airport> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, airports);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
+        
         spOrigin.setAdapter(adapter);
         spDest.setAdapter(adapter);
+        
+        ArrayAdapter<String> metAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"Distancia", "Tiempo", "Costo"});
+        metAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMetric.setAdapter(metAdapter);
 
         container.addView(spOrigin);
         container.addView(spDest);
-
+        container.addView(spMetric);
+        
         new AlertDialog.Builder(this)
                 .setTitle("Ruta más corta (Dijkstra)")
                 .setView(container)
@@ -192,8 +200,13 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Origen y destino no pueden ser iguales", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    
+                    String m = (String) spMetric.getSelectedItem();
+                    GraphAL.WeightMetric metric = GraphAL.WeightMetric.DISTANCE;
+                    if ("Tiempo".equals(m)) metric = GraphAL.WeightMetric.TIME;
+                    else if ("Costo".equals(m)) metric = GraphAL.WeightMetric.COST;
 
-                    ShortestPathResult res = flightManager.getFlightGraph().dijkstra(o.getIataCode(), t.getIataCode());
+                    ShortestPathResult res = flightManager.getFlightGraph().dijkstra(o.getIataCode(), t.getIataCode(), metric);
                     if (!res.isReachable()) {
                         new AlertDialog.Builder(this)
                                 .setTitle("Resultado")
@@ -207,7 +220,10 @@ public class MainActivity extends AppCompatActivity {
                             sb.append(res.getPath().get(i).getIataCode());
                             if (i < res.getPath().size() - 1) sb.append(" -> ");
                         }
-                        String msg = "Distancia total: " + res.getTotalDistance() + "\nCamino: " + sb;
+                        String unidad = (metric == GraphAL.WeightMetric.DISTANCE) ? "km"
+                                   : (metric == GraphAL.WeightMetric.TIME)     ? "min"
+                                   : "$";
+                        String msg = "Total (" + m + "): " + res.getTotalDistance() + " " + unidad + "\nCamino: " + sb;
                         new AlertDialog.Builder(this)
                                 .setTitle("Ruta encontrada")
                                 .setMessage(msg)

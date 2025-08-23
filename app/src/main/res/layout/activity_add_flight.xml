@@ -22,6 +22,22 @@
         android:id="@+id/spinnerAerolinea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    
+    <EditText
+        android:id="@+id/etDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duración (min) – opcional"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="12dp"/>
+
+    <EditText
+        android:id="@+id/etCost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Costo – opcional"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="8dp"/>
 
     <Button
         android:id="@+id/btnGuardar"

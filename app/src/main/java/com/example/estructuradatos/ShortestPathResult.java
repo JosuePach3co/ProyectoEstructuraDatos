@@ -12,13 +12,18 @@ public class ShortestPathResult implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final boolean reachable;
-    private final double totalDistance;
+    private final double totalDistance; // ahora es el "peso total" según métrica
     private final List<Airport> path; // Camino en orden desde origen hasta destino (incluye ambos)
-
-
+    private final GraphAL.WeightMetric metric;
+    
     public ShortestPathResult(boolean reachable, double totalDistance, List<Airport> path) {
+        this(reachable, totalDistance, path, GraphAL.WeightMetric.DISTANCE);
+    }
+
+    public ShortestPathResult(boolean reachable, double totalDistance, List<Airport> path, GraphAL.WeightMetric metric) {
         this.reachable = reachable;
         this.totalDistance = totalDistance;
+        this.metric = (metric == null) ? GraphAL.WeightMetric.DISTANCE : metric;
         // Copia inmutable defensiva
         this.path = (path == null) ? Collections.emptyList() : Collections.unmodifiableList(path);
     }
@@ -34,6 +39,10 @@ public class ShortestPathResult implements Serializable {
 
     public List<Airport> getPath() {
         return path;
+    }
+    
+    public GraphAL.WeightMetric getMetric() {
+        return metric;
     }
 
     @Override

@@ -14,6 +14,10 @@ import java.util.List;
 
 
 public class FlightManager implements Serializable {
+    // Parámetros para estimar si no se proveen (se puede ajustar)
+    private static final double AVG_SPEED_KMH = 800.0;   // velocidad comercial
+    private static final double COST_PER_KM   = 0.12;    // costo estimado por km
+    
     private static final long serialVersionUID = 1L;
 
     private static final String FILE_NAME = "arch_flights.bin";
@@ -54,6 +58,17 @@ public class FlightManager implements Serializable {
         double dx = b.getX() - a.getX();
         double dy = b.getY() - a.getY();
         return Math.round(Math.hypot(dx, dy) * 100.0) / 100.0;
+    }
+    
+    public static double computeEstimatedDurationMin(double distanceKm) {
+        if (distanceKm <= 0) return 0;
+        double hours = distanceKm / AVG_SPEED_KMH;
+        return Math.round(hours * 60.0 * 100.0) / 100.0;
+    }
+    
+    public static double computeEstimatedCost(double distanceKm) {
+        if (distanceKm <= 0) return 0;
+        return Math.round(distanceKm * COST_PER_KM * 100.0) / 100.0;
     }
 
     private void loadInitialData() {
@@ -140,11 +155,11 @@ public class FlightManager implements Serializable {
         private Store(GraphAL g, List<Airline> a) { this.graph = g; this.airlines = a; }
     }
 
-
-    public boolean addFlight(String originIata, String destinationIata, double distance, Airline airline) {
+    // Overload nuevo con duración/costo
+    public boolean addFlight(String originIata, String destinationIata, double distance, double durationMin, double cost, Airline airline) {
         if (originIata == null || destinationIata == null) return false;
 
-        boolean added = flightGraph.addFlight(originIata, destinationIata, distance, airline);
+        boolean added = flightGraph.addFlight(originIata, destinationIata, distance, durationMin, cost, airline);
         if (!added) return false;
 
         Flight created = findFlight(originIata, destinationIata);

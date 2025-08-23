@@ -40,6 +40,8 @@ public class EditFlightActivity extends AppCompatActivity {
         Spinner spinnerOrigin = findViewById(R.id.spinnerOrigin);
         Spinner spinnerDestination = findViewById(R.id.spinnerDestination);
         Spinner spinnerAirline = findViewById(R.id.spinnerAirline);
+        EditText etDur = findViewById(R.id.etDurationEdit);
+        EditText etCost = findViewById(R.id.etCostEdit);
         Button btnSave = findViewById(R.id.btnSaveFlight);
 
         List<Airport> airportList = new ArrayList<>(flightManager.getFlightGraph().getVertices());
@@ -70,12 +72,17 @@ public class EditFlightActivity extends AppCompatActivity {
             if (posOrigin >= 0) spinnerOrigin.setSelection(posOrigin);
             if (posDest >= 0) spinnerDestination.setSelection(posDest);
             if (posAirline >= 0) spinnerAirline.setSelection(posAirline);
+            
+            etDur.setText(flight.getDurationMin() > 0 ? String.valueOf(flight.getDurationMin()) : "");
+            etCost.setText(flight.getCost() > 0 ? String.valueOf(flight.getCost()) : "");
         }
 
         btnSave.setOnClickListener(v -> {
             Airport selectedOrigin = (Airport) spinnerOrigin.getSelectedItem();
             Airport selectedDestination = (Airport) spinnerDestination.getSelectedItem();
             Airline selectedAirline = (Airline) spinnerAirline.getSelectedItem();
+            String sDur = etDur.getText().toString().trim();
+            String sCost = etCost.getText().toString().trim();
 
             if (selectedOrigin.equals(selectedDestination)) {
                 Toast.makeText(this, "El aeropuerto de origen y destino no pueden ser el mismo", Toast.LENGTH_SHORT).show();
@@ -94,6 +101,8 @@ public class EditFlightActivity extends AppCompatActivity {
             boolean airlineChanged =
                     (flight.getAirline() == null && selectedAirline != null) ||
                             (flight.getAirline() != null && !flight.getAirline().equals(selectedAirline));
+            
+            boolean otherChanged = false;
 
             if (routeChanged) {
                 String oldOrigin = flight.getOrigin().getIataCode();
@@ -106,13 +115,16 @@ public class EditFlightActivity extends AppCompatActivity {
                     return;
                 }
 
-                // PUNTO 14: calcular distancia con método centralizado
                 double distancia = FlightManager.computeDistance(selectedOrigin, selectedDestination);
+                double durMin = sDur.isEmpty() ? FlightManager.computeEstimatedDurationMin(distancia) : Double.parseDouble(sDur);
+                double costVal = sCost.isEmpty() ? FlightManager.computeEstimatedCost(distancia) : Double.parseDouble(sCost);
 
                 boolean added = flightManager.addFlight(
                         selectedOrigin.getIataCode(),
                         selectedDestination.getIataCode(),
                         distancia,
+                        durMin,
+                        costVal,
                         selectedAirline
                 );
 
@@ -124,6 +136,15 @@ public class EditFlightActivity extends AppCompatActivity {
                 Toast.makeText(this, "Vuelo actualizado", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
+            }
+            
+            if (!sDur.isEmpty()) {
+                double d = Double.parseDouble(sDur);
+                if (d != flight.getDurationMin()) { flight.setDurationMin(d); otherChanged = true; }
+            }
+            if (!sCost.isEmpty()) {
+                double c = Double.parseDouble(sCost);
+                if (c != flight.getCost()) { flight.setCost(c); otherChanged = true; }
             }
 
             if (airlineChanged) {
@@ -141,6 +162,13 @@ public class EditFlightActivity extends AppCompatActivity {
                 // El comparador del AVL desempata por aerolínea: reconstruimos
                 flightManager.rebuildFlightAvl();
                 Toast.makeText(this, "Aerolínea actualizada", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            
+            if (otherChanged) {
+                flightManager.rebuildFlightAvl(); // por si el orden depende de métrica futura
+                Toast.makeText(this, "Datos de vuelo actualizados", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             }

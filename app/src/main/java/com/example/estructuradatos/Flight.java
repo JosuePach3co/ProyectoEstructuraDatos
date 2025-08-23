@@ -7,13 +7,21 @@ public class Flight implements Serializable {
 
     private Airport origin;
     private Airport destination;
-    private double distance;
+    private double distance;     // km
+    private double durationMin;  // minutos
+    private double cost;         // moneda
     private Airline airline;
-
+    
     public Flight(Airport origin, Airport destination, double distance, Airline airline) {
+        this(origin, destination, distance, 0.0, 0.0, airline);
+    }
+
+    public Flight(Airport origin, Airport destination, double distance,double durationMin, double cost, Airline airline) {
         this.origin = origin;
         this.destination = destination;
         this.distance = distance;
+        this.durationMin = durationMin;
+        this.cost = cost;
         this.airline = airline;
 
         if (this.airline != null) {
@@ -33,6 +41,22 @@ public class Flight implements Serializable {
         return distance;
     }
 
+    public double getDurationMin() {
+        return durationMin;
+    }
+
+    public void setDurationMin(double durationMin) {
+        this.durationMin = durationMin;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
     public Airline getAirline() {
         return airline;
     }
@@ -44,7 +68,9 @@ public class Flight implements Serializable {
     @Override
     public String toString() {
         return origin.getIataCode() + " -> " + destination.getIataCode()
-                + " (" + distance + " km, "
-                + (airline != null ? airline.getName() : "N/A") + ")";
+                + " (" + distance + " km"
+                + (durationMin > 0 ? ", " + durationMin + " min" : "")
+                + (cost > 0 ? ", $" + cost : "")
+                + ", " + (airline != null ? airline.getName() : "N/A") + ")";
     }
 }

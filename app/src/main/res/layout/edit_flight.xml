@@ -46,6 +46,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:spinnerMode="dropdown" />
+    
+    <EditText
+        android:id="@+id/etDurationEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duración (min)"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/etCostEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Costo"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="8dp"/>
 
     <Button
         android:id="@+id/btnSaveFlight"
