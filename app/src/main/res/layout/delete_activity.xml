@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="100dp">
+    android:padding="90dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Selecciona qué deseas eliminar:"
+        android:text="Selecciona qué deseas:"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
@@ -23,14 +23,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Eliminar Aeropuerto"
+            android:text="Editar/Eliminar Aeropuerto"
             android:textSize="16sp" />
 
         <RadioButton
             android:id="@+id/radioFlight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Eliminar Vuelo"
+            android:text="Editar/Eliminar Vuelo"
             android:textSize="16sp" />
     </RadioGroup>
 

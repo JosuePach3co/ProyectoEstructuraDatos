@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -169,6 +170,16 @@ public class MainActivity extends AppCompatActivity {
         Spinner spDest = new Spinner(this);
         Spinner spMetric = new Spinner(this);
 
+        TextView txtOrigen = new TextView(this);
+        txtOrigen.setText("Aeropuerto de Origen");
+
+        TextView txtDestino = new TextView(this);
+        txtDestino.setText("Aeropuerto de Destino");
+
+        TextView txtRuta = new TextView(this);
+        txtRuta.setText("Por");
+
+
         ArrayAdapter<Airport> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, airports);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -182,8 +193,11 @@ public class MainActivity extends AppCompatActivity {
         metAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spMetric.setAdapter(metAdapter);
 
+        container.addView(txtOrigen);
         container.addView(spOrigin);
+        container.addView(txtDestino);
         container.addView(spDest);
+        container.addView(txtRuta);
         container.addView(spMetric);
         
         new AlertDialog.Builder(this)

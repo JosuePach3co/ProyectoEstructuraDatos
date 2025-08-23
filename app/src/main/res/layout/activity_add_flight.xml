@@ -8,16 +8,39 @@
     android:fitsSystemWindows="true"
     android:paddingTop="?attr/actionBarSize">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aeropuerto de origen:"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
     <Spinner
         android:id="@+id/spinnerOrigen"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aeropuerto de destino:"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
     <Spinner
         android:id="@+id/spinnerDestino"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aerolínea:"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
     <Spinner
         android:id="@+id/spinnerAerolinea"
         android:layout_width="match_parent"
@@ -29,22 +52,25 @@
         android:layout_height="wrap_content"
         android:hint="Duración (min) – opcional"
         android:inputType="numberDecimal"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="12dp"
+        />
 
     <EditText
         android:id="@+id/etCost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Costo – opcional"
+        android:hint="Costo $ – opcional"
         android:inputType="numberDecimal"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
 
     <Button
         android:id="@+id/btnGuardar"
-        android:text="Guardar Vuelo"
+        android:text="Crear Vuelo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/purple_500"
+        android:layout_marginTop="15dp"
         android:textColor="@android:color/white"/>
 
     <Button

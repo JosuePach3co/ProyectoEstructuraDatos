@@ -20,7 +20,7 @@ public class FlightManager implements Serializable {
     
     private static final long serialVersionUID = 1L;
 
-    private static final String FILE_NAME = "arch_flights.bin";
+    private static final String FILE_NAME = "archivo_flights.bin";
 
     private static FlightManager instance;
 
@@ -72,32 +72,49 @@ public class FlightManager implements Serializable {
     }
 
     private void loadInitialData() {
+        // Crear aerolineas
         Airline airChina = new Airline("Air China");
-        Airline airBritanica = new Airline("British Airways");
-        Airline airFrancesa = new Airline("Air France");
+        Airline british = new Airline("British Airways");
+        Airline airFrance = new Airline("Air France");
+        Airline delta = new Airline("Delta Airlines");
+        Airline latam = new Airline("LATAM");
 
         airlines.add(airChina);
-        airlines.add(airBritanica);
-        airlines.add(airFrancesa);
+        airlines.add(british);
+        airlines.add(airFrance);
+        airlines.add(delta);
+        airlines.add(latam);
 
+        // Crear 10 aeropuertos
         Airport pkx = new Airport("PKX", "Daxing", 100, 600);
         Airport jfk = new Airport("JFK", "Nueva York", 200, 100);
         Airport lhr = new Airport("LHR", "Londres", 900, 900);
         Airport cdg = new Airport("CDG", "París", 1700, 1100);
         Airport nrt = new Airport("NRT", "Tokio", 500, 1300);
+        Airport gru = new Airport("GRU", "Sao Paulo", 300, 330);
+        Airport syd = new Airport("SYD", "Sídney", 400, 1700);
+        Airport lax = new Airport("LAX", "Los Ángeles", 1000, 500);
+        Airport mxc = new Airport("MEX", "Ciudad de México", 1200, 1500);
+        Airport mad = new Airport("MAD", "Madrid", 1200, 1000);
 
+        // Agregar aeropuertos al grafo
         flightGraph.addAirport(pkx);
         flightGraph.addAirport(jfk);
         flightGraph.addAirport(lhr);
         flightGraph.addAirport(cdg);
         flightGraph.addAirport(nrt);
+        flightGraph.addAirport(gru);
+        flightGraph.addAirport(syd);
+        flightGraph.addAirport(lax);
+        flightGraph.addAirport(mxc);
+        flightGraph.addAirport(mad);
 
-        // uso de computeDistance(...) para distancias iniciales
-        flightGraph.addFlight("PKX", "LHR", computeDistance(pkx, lhr), airChina);
-        flightGraph.addFlight("LHR", "JFK", computeDistance(lhr, jfk), airBritanica);
-        flightGraph.addFlight("JFK", "PKX", computeDistance(jfk, pkx), airBritanica);
-        flightGraph.addFlight("PKX", "NRT", computeDistance(pkx, nrt), airChina);
-        flightGraph.addFlight("LHR", "CDG", computeDistance(lhr, cdg), airFrancesa);
+        //creamos los vuelos
+        addFlight("PKX", "LHR", computeDistance(pkx, lhr), computeEstimatedDurationMin(computeDistance(pkx, lhr)), computeEstimatedCost(computeDistance(pkx, lhr)), airChina);
+        addFlight("LHR", "JFK", computeDistance(lhr, jfk), computeEstimatedDurationMin(computeDistance(lhr, jfk)), computeEstimatedCost(computeDistance(lhr, jfk)), british);
+        addFlight("JFK", "GRU", computeDistance(jfk, gru), computeEstimatedDurationMin(computeDistance(jfk, gru)), computeEstimatedCost(computeDistance(jfk, gru)), delta);
+        addFlight("GRU", "NRT", computeDistance(gru, nrt), computeEstimatedDurationMin(computeDistance(gru, nrt)), computeEstimatedCost(computeDistance(gru, nrt)), latam);
+        addFlight("MAD", "CDG", computeDistance(mad, cdg), computeEstimatedDurationMin(computeDistance(mad, cdg)), computeEstimatedCost(computeDistance(mad, cdg)), airFrance);
     }
 
 

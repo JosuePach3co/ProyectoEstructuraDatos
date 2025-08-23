@@ -51,13 +51,14 @@ public class GraphAL implements Serializable {
         }
         return true;
     }
-    
+    /**
     // Compatibilidad con llamadas antiguas: calcula valores por defecto
     public boolean addFlight(String iataOrigin, String iataDestination, double distance, Airline airline) {
         double defDur = FlightManager.computeEstimatedDurationMin(distance);
         double defCost = FlightManager.computeEstimatedCost(distance);
         return addFlight(iataOrigin, iataDestination, distance, defDur, defCost, airline);
-    }
+    }**/
+
 
     public Airport findAirport(String iataCode) {
         return this.airports.get(iataCode);
