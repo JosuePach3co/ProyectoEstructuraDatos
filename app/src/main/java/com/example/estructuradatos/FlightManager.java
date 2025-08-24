@@ -20,7 +20,7 @@ public class FlightManager implements Serializable {
     
     private static final long serialVersionUID = 1L;
 
-    private static final String FILE_NAME = "archivo_flight1.bin";
+    private static final String FILE_NAME = "archivo_flight6.bin";
 
     private static FlightManager instance;
 
@@ -245,7 +245,7 @@ public class FlightManager implements Serializable {
     }
 
     private void initAvl() {
-        flightAvl = new AvlTree<>(FlightComparators.BY_DISTANCE_ASC);
+        flightAvl = new AvlTree<>(FlightComparators.POR_ORIGEN_DESTINO_DISTANCIA_AEROLINEA_ASC);
         for (Flight f : getAllFlights()) {
             if (f != null) flightAvl.insert(f);
         }
@@ -257,7 +257,7 @@ public class FlightManager implements Serializable {
             return;
         }
         flightAvl.clear();
-        flightAvl.setComparator(FlightComparators.BY_DISTANCE_ASC);
+        flightAvl.setComparator(FlightComparators.POR_ORIGEN_DESTINO_DISTANCIA_AEROLINEA_ASC);
         for (Flight f : getAllFlights()) {
             if (f != null) flightAvl.insert(f);
         }
@@ -267,7 +267,7 @@ public class FlightManager implements Serializable {
         if (flightAvl == null) {
             initAvl();
         } else {
-            flightAvl.setComparator(FlightComparators.BY_DISTANCE_ASC);
+            flightAvl.setComparator(FlightComparators.POR_ORIGEN_DESTINO_DISTANCIA_AEROLINEA_ASC);
         }
     }
 

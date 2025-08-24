@@ -15,21 +15,24 @@ public final class FlightComparators {
     private FlightComparators() { /* utility class */ }
 
 
-    public static final Comparator<Flight> BY_DISTANCE_ASC = (a, b) -> {
+    public static final Comparator<Flight> POR_ORIGEN_DESTINO_DISTANCIA_AEROLINEA_ASC = (a, b) -> {
         if (a == b) return 0;
         if (a == null) return 1;
         if (b == null) return -1;
 
-        int c = Double.compare(safeDistance(a), safeDistance(b));
-        if (c != 0) return c;
-
-        c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
+        int c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
         if (c != 0) return c;
 
         c = safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
         if (c != 0) return c;
 
-        return safeAirline(a).compareTo(safeAirline(b));
+        c = safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
+        if (c != 0) return c;
+
+        c = safeAirline(a).compareTo(safeAirline(b));
+        if (c != 0) return c;
+
+        return Integer.compare(System.identityHashCode(a), System.identityHashCode(b));
     };
 
 
@@ -49,8 +52,6 @@ public final class FlightComparators {
 
         return safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
     };
-
-
     public static final Comparator<Flight> BY_ORIGIN_THEN_DEST_THEN_DISTANCE = (a, b) -> {
         if (a == b) return 0;
         if (a == null) return 1;

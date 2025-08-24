@@ -66,15 +66,19 @@ public class MainActivity extends AppCompatActivity {
         // Click en aeropuerto: mostrar diálogo con vuelos
         graphView.setOnAirportClickListener(airport -> {
             StringBuilder sb = new StringBuilder();
-            if (airport.getFlightList().isEmpty()) {
+            List<Flight> flights = airport.getFlightList();
+
+            if (flights.isEmpty()) {
                 sb.append("No tiene vuelos registrados.");
             } else {
-                for (Flight f : airport.getFlightList()) {
+                for (Flight f : flights) {
                     sb.append("De ").append(f.getOrigin().getIataCode())
                             .append(" a ").append(f.getDestination().getIataCode())
                             .append(" | Aerolínea: ").append(f.getAirline().getName())
                             .append(" | Distancia: ").append(f.getDistance()).append(" km\n");
                 }
+                sb.append("\n");
+                sb.append("Cantidad de vuelos: ").append(flights.size());
             }
 
             new AlertDialog.Builder(this)
