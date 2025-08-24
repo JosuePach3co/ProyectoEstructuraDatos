@@ -64,7 +64,33 @@ public class GraphView extends View {
         for (Airport origin : flightGraph.getVertices()) {
             for (Flight flight : origin.getFlightList()) {
                 Airport dest = flight.getDestination();
-                canvas.drawLine(origin.getX(), origin.getY(), dest.getX(),  dest.getY(), flightPaint);
+
+                float startX = origin.getX();
+                float startY = origin.getY();
+                float endX = dest.getX();
+                float endY = dest.getY();
+
+                // Línea principal
+                canvas.drawLine(startX, startY, endX, endY, flightPaint);
+
+                // Calcular ángulo y flecha
+                float dx = endX - startX;
+                float dy = endY - startY;
+                double angle = Math.atan2(dy, dx);
+                float arrowLen = 60f; // largo de la flecha
+                float arrowAngle = (float) Math.toRadians(40); // apertura
+                float tipX = endX - (float) Math.cos(angle) * (AIRPORT_SIZE / 1.5f);
+                float tipY = endY - (float) Math.sin(angle) * (AIRPORT_SIZE / 1.5f);
+
+                // Coordenadas de las alas de la flecha
+                float x1 = tipX - (float) Math.cos(angle - arrowAngle) * arrowLen;
+                float y1 = tipY - (float) Math.sin(angle - arrowAngle) * arrowLen;
+                float x2 = tipX - (float) Math.cos(angle + arrowAngle) * arrowLen;
+                float y2 = tipY - (float) Math.sin(angle + arrowAngle) * arrowLen;
+
+                // Dibujar las dos líneas de la flecha
+                canvas.drawLine(tipX, tipY, x1, y1, flightPaint);
+                canvas.drawLine(tipX, tipY, x2, y2, flightPaint);
             }
         }
 

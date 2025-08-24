@@ -33,7 +33,7 @@ public class ShortestPathResult implements Serializable {
     }
 
     public double getTotalDistance() {
-        return totalDistance;
+        return Math.round(totalDistance * 100.0) / 100.0;
     }
 
 

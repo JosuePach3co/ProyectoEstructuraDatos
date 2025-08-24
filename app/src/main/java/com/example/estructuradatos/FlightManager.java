@@ -20,7 +20,7 @@ public class FlightManager implements Serializable {
     
     private static final long serialVersionUID = 1L;
 
-    private static final String FILE_NAME = "archivo_flights.bin";
+    private static final String FILE_NAME = "archivo_flight1.bin";
 
     private static FlightManager instance;
 
@@ -87,7 +87,7 @@ public class FlightManager implements Serializable {
 
         // Crear 10 aeropuertos
         Airport pkx = new Airport("PKX", "Daxing", 100, 600);
-        Airport jfk = new Airport("JFK", "Nueva York", 200, 100);
+        Airport jfk = new Airport("JFK", "Nueva York", 300, 100);
         Airport lhr = new Airport("LHR", "Londres", 900, 900);
         Airport cdg = new Airport("CDG", "París", 1700, 1100);
         Airport nrt = new Airport("NRT", "Tokio", 500, 1300);
