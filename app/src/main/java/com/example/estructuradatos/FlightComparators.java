@@ -36,60 +36,7 @@ public final class FlightComparators {
     };
 
 
-    public static final Comparator<Flight> BY_AIRLINE_THEN_DISTANCE = (a, b) -> {
-        if (a == b) return 0;
-        if (a == null) return 1;
-        if (b == null) return -1;
 
-        int c = safeAirline(a).compareTo(safeAirline(b));
-        if (c != 0) return c;
-
-        c = Double.compare(safeDistance(a), safeDistance(b));
-        if (c != 0) return c;
-
-        c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
-        if (c != 0) return c;
-
-        return safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
-    };
-    public static final Comparator<Flight> BY_ORIGIN_THEN_DEST_THEN_DISTANCE = (a, b) -> {
-        if (a == b) return 0;
-        if (a == null) return 1;
-        if (b == null) return -1;
-
-        int c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
-        if (c != 0) return c;
-
-        c = safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
-        if (c != 0) return c;
-
-        c = Double.compare(safeDistance(a), safeDistance(b));
-        if (c != 0) return c;
-
-        return safeAirline(a).compareTo(safeAirline(b));
-    };
-
-    public static final Comparator<Flight> BY_DURATION_ASC = (a,b) -> {
-        int c = Double.compare(a!=null?a.getDurationMin():Double.POSITIVE_INFINITY,
-                               b!=null?b.getDurationMin():Double.POSITIVE_INFINITY);
-        if (c != 0) return c;
-        
-        c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
-        if (c != 0) return c;
-        
-        return safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
-    };
-
-    public static final Comparator<Flight> BY_COST_ASC = (a,b) -> {
-        int c = Double.compare(a!=null?a.getCost():Double.POSITIVE_INFINITY,
-                               b!=null?b.getCost():Double.POSITIVE_INFINITY);
-        if (c != 0) return c;
-        
-        c = safeIata(a.getOrigin()).compareTo(safeIata(b.getOrigin()));
-        if (c != 0) return c;
-        
-        return safeIata(a.getDestination()).compareTo(safeIata(b.getDestination()));
-    };
 
     private static String safeIata(Airport ap) {
         return (ap != null && ap.getIataCode() != null) ? ap.getIataCode() : "";

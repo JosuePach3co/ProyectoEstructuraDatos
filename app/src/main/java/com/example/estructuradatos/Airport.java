@@ -7,10 +7,11 @@ import java.util.List;
 public class Airport implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String iataCode; // codigo para identificacion de cada aeropuerto
+    private String iataCode;
     private String name;
     private float x, y;
     private List<Flight> flightList;
+    private transient boolean visited;
 
 
     public Airport(String iataCode, String name, float x, float y) {
@@ -40,6 +41,11 @@ public class Airport implements Serializable {
     public float getY() {
         return y;
     }
+
+    public boolean isVisited() { return visited; }
+
+    public void setVisited(boolean visited) { this.visited = visited; }
+
 
     public void setName(String name) {
         this.name = name;

@@ -7,17 +7,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Árbol AVL genérico y serializable.
- * - Mantiene el balance automáticamente con rotaciones LL, RR, LR, RL.
- * - No permite duplicados (si compare(a,b)==0, se ignora la inserción).
- * - El Comparator es transient (no se serializa). Debes volver a establecerlo tras load:
- *     avl.setComparator(MI_COMPARATOR);
- */
+
 public class AvlTree<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** Nodo interno del AVL */
     private static class Node<T> implements Serializable {
         private static final long serialVersionUID = 1L;
         T key;
@@ -34,58 +27,40 @@ public class AvlTree<T> implements Serializable {
     private transient Comparator<T> cmp;
     private Node<T> root;
 
-    /** Crea un AVL con el comparador dado */
     public AvlTree(Comparator<T> comparator) {
         this.cmp = comparator;
     }
 
-    /** Debes llamarlo tras deserializar para volver a establecer el comparator */
     public void setComparator(Comparator<T> comparator) {
         this.cmp = comparator;
     }
 
-    /** Inserta una clave; ignora si ya existe (según comparator) */
     public void insert(T key) {
         ensureComparator();
         root = insertRec(root, key);
     }
 
-    /** Elimina una clave; no falla si no existe */
     public void delete(T key) {
         ensureComparator();
         root = deleteRec(root, key);
     }
 
-    /** true si el árbol contiene la clave */
-    public boolean contains(T key) {
-        ensureComparator();
-        Node<T> n = root;
-        while (n != null) {
-            int c = cmp.compare(key, n.key);
-            if (c == 0) return true;
-            n = (c < 0) ? n.left : n.right;
-        }
-        return false;
-    }
 
-    /** Devuelve los elementos en orden ascendente según el comparator */
+
     public List<T> toSortedList() {
         List<T> res = new ArrayList<>();
         inorder(root, res);
         return res;
     }
 
-    /** Vacía el árbol */
     public void clear() {
         root = null;
     }
 
-    /** true si no tiene elementos */
     public boolean isEmpty() {
         return root == null;
     }
 
-    // ------------------ Privados: utilidades AVL ------------------
 
     private void ensureComparator() {
         if (cmp == null) {
@@ -140,7 +115,6 @@ public class AvlTree<T> implements Serializable {
         } else if (c > 0) {
             n.right = insertRec(n.right, key);
         } else {
-            // duplicado: no insertar
             return n;
         }
 
@@ -228,13 +202,10 @@ public class AvlTree<T> implements Serializable {
         inorder(n.right, out);
     }
 
-    // ------------------ Serialización personalizada ------------------
-    // No serializamos el Comparator (transient). Tras leer, queda null.
-    // Se deja hook por si quieres lógica extra en el futuro.
+
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        // cmp queda null a propósito; el usuario debe llamar setComparator(...)
     }
 }
 

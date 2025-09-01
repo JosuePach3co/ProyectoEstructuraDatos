@@ -6,14 +6,14 @@ import java.util.*;
 
 public class GraphAL implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    public enum WeightMetric { DISTANCE, TIME, COST }
+
+    public enum WeightMetric {DISTANCE, TIME, COST}
 
     private final Map<String, Airport> airports; // IATA - Airport
     private final boolean isDirected;
 
     public GraphAL(boolean isDirected) {
-        this.airports = new HashMap<>();
+        this.airports = new LinkedHashMap<>();
         this.isDirected = isDirected;
     }
 
@@ -22,6 +22,8 @@ public class GraphAL implements Serializable {
             return false;
         }
         this.airports.put(airport.getIataCode(), airport);
+
+
         return true;
     }
 
@@ -51,13 +53,7 @@ public class GraphAL implements Serializable {
         }
         return true;
     }
-    /**
-    // Compatibilidad con llamadas antiguas: calcula valores por defecto
-    public boolean addFlight(String iataOrigin, String iataDestination, double distance, Airline airline) {
-        double defDur = FlightManager.computeEstimatedDurationMin(distance);
-        double defCost = FlightManager.computeEstimatedCost(distance);
-        return addFlight(iataOrigin, iataDestination, distance, defDur, defCost, airline);
-    }**/
+
 
 
     public Airport findAirport(String iataCode) {
@@ -68,13 +64,40 @@ public class GraphAL implements Serializable {
         return this.airports.values();
     }
 
+    public Airport getLastAirport() {
+        if (airports.isEmpty()) return null;
+        Airport last = null;
+        for (Airport a : airports.values()) { last = a; }
+        return last;
+    }
+
+
+    public List<Flight> getIncomingFlights(String iataDestination) {
+        Airport dest = airports.get(iataDestination);
+        return (dest == null) ? Collections.emptyList() : getIncomingFlights(dest);
+    }
+
+    public List<Flight> getIncomingFlights(Airport dest) {
+        if (dest == null) return Collections.emptyList();
+        List<Flight> incoming = new ArrayList<>();
+        for (Airport a : airports.values()) {
+            if (a == null || a.getFlightList() == null) continue;
+            for (Flight f : a.getFlightList()) {
+                if (f != null && f.getDestination() != null && dest.equals(f.getDestination())) {
+                    incoming.add(f);
+                }
+            }
+        }
+        return incoming;
+    }
 
     public boolean removeAirport(Airport airport) {
         if (airport == null || airport.getIataCode() == null || !airports.containsKey(airport.getIataCode())) return false;
 
         final String toRemoveIata = airport.getIataCode();
 
-        // Limpiar vuelos SALIENTES de airport en listas de aerolíneas
+
+
         if (airport.getFlightList() != null) {
             for (Flight f : new ArrayList<>(airport.getFlightList())) {
                 if (f != null) {
@@ -110,20 +133,10 @@ public class GraphAL implements Serializable {
         return true;
     }
 
-    /**
-    public boolean hasFlight(String iataOrigin, String iataDestination) {
-        Airport origin = this.airports.get(iataOrigin);
-        if (origin == null) return false;
 
-        for (Flight f : origin.getFlightList()) {
-            Airport dest = (f != null) ? f.getDestination() : null;
-            String destIata = (dest != null) ? dest.getIataCode() : null;
-            if (Objects.equals(destIata, iataDestination)) {
-                return true;
-            }
-        }
-        return false;
-    }**/
+
+
+
 
 
     public boolean removeFlight(String iataOrigin, String iataDestination) {
@@ -192,63 +205,77 @@ public class GraphAL implements Serializable {
     public ShortestPathResult dijkstra(String fromIata, String toIata, WeightMetric metric) {
         Airport source = airports.get(fromIata);
         Airport target = airports.get(toIata);
-
         if (source == null || target == null) {
             return new ShortestPathResult(false, Double.POSITIVE_INFINITY, Collections.emptyList(), metric);
         }
 
+        for (Airport a : airports.values()) if (a != null) a.setVisited(false);
+
         Map<Airport, Double> dist = new HashMap<>();
         Map<Airport, Airport> prev = new HashMap<>();
-
-        for (Airport a : airports.values()) {
-            dist.put(a, Double.POSITIVE_INFINITY);
-        }
+        for (Airport a : airports.values()) dist.put(a, Double.POSITIVE_INFINITY);
         dist.put(source, 0.0);
 
         PriorityQueue<Airport> pq = new PriorityQueue<>(Comparator.comparingDouble(dist::get));
         pq.add(source);
 
-        while (!pq.isEmpty()) {
+        while (!pq.isEmpty() && !target.isVisited()) {
             Airport u = pq.poll();
-            if (u.equals(target)) break;
 
-            for (Flight f : u.getFlightList()) {
-                if (f == null || f.getDestination() == null) continue;
-                Airport v = f.getDestination();
-                double w;
-                switch (metric) {
-                    case TIME: w = f.getDurationMin() > 0 ? f.getDurationMin()
-                            : FlightManager.computeEstimatedDurationMin(f.getDistance()); break;
-                    case COST: w = f.getCost() > 0 ? f.getCost()
-                            : FlightManager.computeEstimatedCost(f.getDistance()); break;
-                    case DISTANCE:
-                    default:   w = f.getDistance();
-                }
-                double alt = dist.get(u) + w;
-                if (alt < dist.get(v)) {
-                    dist.put(v, alt);
-                    prev.put(v, u);
-                    pq.remove(v);
-                    pq.add(v);
+            if (!u.isVisited()) {
+                u.setVisited(true);
+
+                if (!u.equals(target)) {
+                    for (Flight f : u.getFlightList()) {
+                        if (f != null && f.getDestination() != null) {
+                            Airport v = f.getDestination();
+
+                            double w;
+                            switch (metric) {
+                                case TIME:
+                                    w = (f.getDurationMin() > 0)
+                                            ? f.getDurationMin()
+                                            : FlightManager.computeEstimatedDurationMin(f.getDistance());
+                                    break;
+                                case COST:
+                                    w = (f.getCost() > 0)
+                                            ? f.getCost()
+                                            : FlightManager.computeEstimatedCost(f.getDistance());
+                                    break;
+                                case DISTANCE:
+                                default:
+                                    w = f.getDistance();
+                            }
+
+                            double alt = dist.get(u) + w;
+                            if (alt < dist.get(v)) {
+                                dist.put(v, alt);
+                                prev.put(v, u);
+                                pq.add(v);
+                            }
+                        }
+                    }
                 }
             }
         }
 
         double total = dist.get(target);
         if (total == Double.POSITIVE_INFINITY) {
+
+            for (Airport a : airports.values()) if (a != null) a.setVisited(false);
             return new ShortestPathResult(false, total, Collections.emptyList(), metric);
         }
 
         LinkedList<Airport> path = new LinkedList<>();
-        Airport step = target;
-        while (step != null) {
-            path.addFirst(step);
-            step = prev.get(step);
-        }
+        for (Airport step = target; step != null; step = prev.get(step)) path.addFirst(step);
+
+
+        for (Airport a : airports.values()) if (a != null) a.setVisited(false);
 
         return new ShortestPathResult(true, total, path, metric);
     }
-    
+
+
     public ShortestPathResult dijkstra(String fromIata, String toIata) {
         return dijkstra(fromIata, toIata, WeightMetric.DISTANCE);
     }
@@ -272,7 +299,6 @@ public class GraphAL implements Serializable {
         return count;
     }
 
-    // conexiones = (includeIn ? entrantes : 0) + (includeOut ? salientes : 0)
     public Map<Airport,Integer> connections(boolean includeIn, boolean includeOut) {
         Map<Airport,Integer> map = new HashMap<>();
         for (Airport a : airports.values()) {

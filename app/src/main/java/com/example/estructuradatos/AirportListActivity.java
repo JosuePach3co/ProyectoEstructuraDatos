@@ -39,7 +39,7 @@ public class AirportListActivity extends AppCompatActivity {
                 .setTitle("Confirmar eliminación")
                 .setMessage("¿Deseas eliminar el aeropuerto " + airport.getIataCode() + "?")
                 .setPositiveButton("Sí", (dialog, which) -> {
-                    // PUNTO 12: usar FlightManager.removeAirport para limpieza completa (Airline + AVL)
+                    // usar FlightManager.removeAirport para limpieza completa (Airline + AVL)
                     boolean removed = flightManager.removeAirport(airport.getIataCode());
                     if (removed && !isFinishing()) {
                         airportList.remove(airport);

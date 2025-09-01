@@ -24,7 +24,6 @@ public class ShortestPathResult implements Serializable {
         this.reachable = reachable;
         this.totalDistance = totalDistance;
         this.metric = (metric == null) ? GraphAL.WeightMetric.DISTANCE : metric;
-        // Copia inmutable defensiva
         this.path = (path == null) ? Collections.emptyList() : Collections.unmodifiableList(path);
     }
 

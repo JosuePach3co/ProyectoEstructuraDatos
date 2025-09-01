@@ -66,23 +66,50 @@ public class MainActivity extends AppCompatActivity {
         // Click en aeropuerto: mostrar diálogo con vuelos
         graphView.setOnAirportClickListener(airport -> {
             StringBuilder sb = new StringBuilder();
-            List<Flight> flights = airport.getFlightList();
 
-            if (flights.isEmpty()) {
-                sb.append("No tiene vuelos registrados.");
+            // Vuelos salientes
+            List<Flight> out = airport.getFlightList();
+            sb.append("Vuelos SALIENTES:\n");
+            if (out.isEmpty()) {
+                sb.append("  (ninguno)\n");
             } else {
-                for (Flight f : flights) {
-                    sb.append("De ").append(f.getOrigin().getIataCode())
-                            .append(" a ").append(f.getDestination().getIataCode())
-                            .append(" | Aerolínea: ").append(f.getAirline().getName())
-                            .append(" | Distancia: ").append(f.getDistance()).append(" km\n");
+                for (Flight f : out) {
+                    String al = (f.getAirline() != null && f.getAirline().getName() != null)
+                            ? f.getAirline().getName() : "N/A";
+                    sb.append("  ")
+                            .append(f.getOrigin().getIataCode())
+                            .append(" → ")
+                            .append(f.getDestination().getIataCode())
+                            .append(" | Aerolínea: ").append(al)
+                            .append(" | Dist: ").append(String.format("%.1f km", f.getDistance()))
+                            .append("\n");
                 }
-                sb.append("\n");
-                sb.append("Cantidad de vuelos: ").append(flights.size());
             }
 
+            // Vuelos ENTRANTES
+            List<Flight> in = flightManager.getFlightGraph().getIncomingFlights(airport);
+            sb.append("\nVuelos ENTRANTES:\n");
+            if (in.isEmpty()) {
+                sb.append("  (ninguno)\n");
+            } else {
+                for (Flight f : in) {
+                    String al = (f.getAirline() != null && f.getAirline().getName() != null)
+                            ? f.getAirline().getName() : "N/A";
+                    sb.append("  ")
+                            .append(f.getOrigin().getIataCode())
+                            .append(" → ")
+                            .append(f.getDestination().getIataCode())
+                            .append(" | Aerolínea: ").append(al)
+                            .append(" | Dist: ").append(String.format("%.1f km", f.getDistance()))
+                            .append("\n");
+                }
+            }
+
+            sb.append("\nTotal salidas: ").append(out.size());
+            sb.append(" | Total entradas: ").append(in.size());
+
             new AlertDialog.Builder(this)
-                    .setTitle("Vuelos del aeropuerto " + airport.getIataCode())
+                    .setTitle("Aeropuerto " + airport.getIataCode())
                     .setMessage(sb.toString())
                     .setPositiveButton("OK", null)
                     .show();
@@ -113,15 +140,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fabAggVuelos = findViewById(R.id.btn_add_vuelos);
         fabAggVuelos.setOnClickListener(v -> startActivity(new Intent(this, AddFlightActivity.class)));
     }
-    /**
-    // Guardar en binario cuando la Activity pasa a pausa
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (flightManager != null) {
-            flightManager.saveToDisk(this);
-        }
-    }**/
+
     private void agregarAeropuerto(String iata, String nombre, float x, float y) {
         boolean valido = graphView.isPositionValid(x, y, flightManager.getFlightGraph().getVertices(), DISTANCIA_MINIMA);
         if (!valido) {
@@ -134,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
         if (flightManager.getFlightGraph().addAirport(nuevo)) {
             graphView.setPreview(null, null, true);
             graphView.postInvalidate();
+
+
+
         } else {
             Toast.makeText(this, "IATA repetido", Toast.LENGTH_SHORT).show();
         }
@@ -142,9 +164,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Añadimos un item de menú programáticamente (sin XML)
         menu.add(0, 1001, 0, "Buscar ruta (Dijkstra)")
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+        menu.add(0, 1002, 1, "Verificar último nodo")
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -157,6 +182,47 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void showLastNodeInfo() {
+        GraphAL graph = flightManager.getFlightGraph();
+        Airport last = graph.getLastAirport();
+        if (last == null) {
+            Toast.makeText(this, "No hay aeropuertos en el grafo", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int in = graph.inDegree(last.getIataCode());
+        int out = graph.outDegree(last.getIataCode());
+        List<Flight> incoming = graph.getIncomingFlights(last);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Aeropuerto: ").append(last.getIataCode()).append("\n");
+        sb.append("Entradas: ").append(in).append(" | Salidas: ").append(out).append("\n\n");
+
+        sb.append("Vuelos ENTRANTES:\n");
+        if (incoming.isEmpty()) {
+            sb.append("  (ninguno)\n");
+        } else {
+            for (Flight f : incoming) {
+                String al = (f.getAirline() != null && f.getAirline().getName() != null)
+                        ? f.getAirline().getName() : "N/A";
+                sb.append("  ")
+                        .append(f.getOrigin().getIataCode())
+                        .append(" → ")
+                        .append(f.getDestination().getIataCode())
+                        .append(" | Aerolínea: ").append(al)
+                        .append(" | Dist: ").append(String.format("%.1f km", f.getDistance()))
+                        .append("\n");
+            }
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Último nodo (por inserción)")
+                .setMessage(sb.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+
+
     private void showDijkstraDialog() {
         List<Airport> airports = new ArrayList<>(flightManager.getFlightGraph().getVertices());
         if (airports.size() < 2) {
@@ -164,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Vista del diálogo (dos spinners)
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
